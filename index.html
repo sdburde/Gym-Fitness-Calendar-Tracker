@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>GymCal — Workout Calendar</title>
+  <meta name="description" content="A family gym & fitness calendar: see at a glance whether you did your planned workout every day.">
+  <meta name="theme-color" content="#162e51">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app bare" id="app">
+    <nav class="tabbar" id="nav" aria-label="Main"></nav>
+    <div class="main-col">
+      <header class="topbar" id="topbar"></header>
+      <main id="view"></main>
+    </div>
+  </div>
+  <div id="sheet-root" class="sheet-root"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <datalist id="ex-names"></datalist>
+
+  <script src="js/store.js"></script>
+  <script src="js/logic.js"></script>
+  <script src="js/sync.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
