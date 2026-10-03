@@ -197,6 +197,14 @@
       '<button class="btn btn-primary only-wide" data-action="open-day" data-date="' + D.today() + '">' + ic('plus') + 'Log today</button></span>';
   }
 
+  // Persistent storage: browsers may otherwise clear site data when space is low (or, on Safari, after weeks unused).
+  let storageKept = null;
+  async function keepStorage() {
+    if (!navigator.storage || !navigator.storage.persist) return;
+    try { storageKept = (await navigator.storage.persisted()) || (await navigator.storage.persist()); } catch (e) { storageKept = false; }
+    if (ui.view === 'profile' && !ui.sheet) render();
+  }
+
   const SYNC_LABEL = { idle: 'Sync', syncing: 'Syncing…', ok: 'Synced', offline: 'Offline', error: 'Sync error' };
   function syncChip() {
     const st = Sync.status();
@@ -550,7 +558,11 @@
         : '<p class="muted small">This browser does not support notifications.</p>') + '</section>';
 
     const sc = Sync.config(), sst = Sync.status();
+    const keptText = storageKept === true ? 'Protected — this browser will not clear GymCal\'s data on its own.'
+      : storageKept === false ? 'Not protected — the browser may clear it (e.g. Safari after 7 days unused). Install the app to the home screen and turn on GitHub sync.'
+      : 'Checking…';
     html += '<section class="card"><div class="card-head"><h2>' + ic('cloud') + ' Cloud sync (GitHub)</h2></div>' +
+      setRow('Browser storage', keptText, '<span class="pill ' + (storageKept ? 's-done' : 's-missed') + '">' + (storageKept ? 'Kept' : storageKept === false ? 'At risk' : '…') + '</span>') +
       (sc ? setRow('Connected', esc(sc.owner + '/' + sc.repo + ' · ' + sc.path) + '<br>' + esc(sst.message || (sst.at ? 'Last synced ' + sst.at.toLocaleString() : SYNC_LABEL[sst.state] || '')),
         '<div class="btn-pair"><button class="btn btn-soft btn-sm" data-action="sync-now">Sync now</button><button class="btn btn-soft btn-sm" data-action="open-sync">Edit</button></div>')
         : setRow('Off', 'Data is saved only in this browser. Connect a private GitHub repo to keep it permanently and share it between phones and computers.',
@@ -1262,6 +1274,7 @@
     render();
     checkNotifications();
     Sync.run();
+    keepStorage();
 
     if ('serviceWorker' in navigator && /^https:|^http:\/\/localhost|^http:\/\/127\./.test(location.href)) {
       navigator.serviceWorker.register('sw.js').catch(() => { });
