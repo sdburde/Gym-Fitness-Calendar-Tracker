@@ -25,7 +25,7 @@ Only the app files are published (`index.html`, `css/`, `js/`, `icon.svg`, `mani
 GitHub Pages can only serve files, so by default data is saved in the browser. To keep it permanently and share it between phones and computers, turn on **GitHub sync**. The app then saves the whole family's data as one JSON file in a **private** repository you own.
 
 1. Create a new **private** repository, for example `gymcal-data` (it can stay empty).
-2. Create a token: **GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
+2. Create a token at **https://github.com/settings/personal-access-tokens/new**. (Or: **profile picture (top-right) → Settings → Developer settings** at the bottom of the left menu **→ Personal access tokens → Fine-grained tokens → Generate new token**. This is your *account* Settings, not the repository's Settings tab.)
    - Repository access: **Only select repositories** → your data repo.
    - Repository permissions: **Contents → Read and write**. Nothing else.
 3. In the app, open **your name (top) → Profile & settings → Cloud sync → Set up** (or **Connect GitHub sync** on the welcome screen of a new device), and enter your username, the repo name and the token.

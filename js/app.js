@@ -697,7 +697,9 @@
       '<p class="muted small">Your family\'s data is saved as one file in a <b>private</b> GitHub repository that only you can see. Every device you connect shares the same data, and it survives clearing the browser.</p>' +
       '<details class="howto"' + (c.token ? '' : ' open') + '><summary>How to set it up (2 minutes, once)</summary><ol>' +
       '<li>On GitHub, create a new <b>private</b> repository, for example <code>gymcal-data</code>. It can stay empty.</li>' +
-      '<li>Go to <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</b>.</li>' +
+      '<li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>. ' +
+        '(Or: click your <b>profile picture</b> top-right → <b>Settings</b> → bottom of the left menu → <b>Developer settings</b> → <b>Personal access tokens → Fine-grained tokens → Generate new token</b>. ' +
+        'This is your <b>account</b> Settings, not the repository\'s Settings tab.)</li>' +
       '<li>Under <b>Repository access</b> choose <b>Only select repositories</b> and pick that data repo.</li>' +
       '<li>Under <b>Permissions → Repository permissions</b>, set <b>Contents</b> to <b>Read and write</b>. Nothing else is needed.</li>' +
       '<li>Generate the token, copy it, and paste it below. Repeat steps on each device using the same token.</li></ol></details>' +
