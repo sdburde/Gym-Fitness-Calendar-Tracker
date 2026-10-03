@@ -227,6 +227,9 @@
       '<img class="welcome-logo" src="icon.svg" alt="" width="64" height="64">' +
       '<h1>Never miss a workout.</h1>' +
       '<p class="muted">A clean calendar for your workouts. Click any date, type what you did, and track your progress. Each family member gets their own private profile.</p>' +
+      (Sync.config() ? '<div class="lock-note ok">' + ic('cloud') + '<div><b>GitHub sync is connected — no profiles found yet</b>' +
+        '<small>If your family already uses GymCal on another device or address (for example the local copy), open it there and connect sync once to upload the profiles. Then tap <b>Check again</b>. Only create a new profile here if you are starting fresh.</small></div>' +
+        '<button class="btn btn-soft btn-sm" data-action="sync-now">Check again</button></div>' : '') +
       '<form data-form="welcome">' + profileFields({ name: '', avatar: AVATARS[0], color: COLORS[0] }) +
       '<button class="btn btn-primary btn-lg btn-block" type="submit">Create my profile</button></form>' +
       '<div class="or"><span>or</span></div>' +
