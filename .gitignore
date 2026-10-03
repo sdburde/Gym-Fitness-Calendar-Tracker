@@ -1,0 +1,41 @@
+# --- Personal data: never commit ---
+# Profile backups made with "Profile & settings → Export"
+gymcal-*.json
+# The GitHub sync data file belongs in the separate private data repo, not here
+gymcal-data.json
+# Environment files / secrets (e.g. access tokens)
+.env
+.env.*
+*.pem
+*.key
+
+# --- Dependencies & tooling ---
+node_modules/
+package-lock.json
+.npm/
+__pycache__/
+*.pyc
+
+# --- Test & browser automation output ---
+test-results/
+playwright-report/
+playwright/.cache/
+screenshots/
+*.png.tmp
+
+# --- Logs ---
+*.log
+npm-debug.log*
+
+# --- Editors & OS ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Local Claude Code settings ---
+.claude/settings.local.json
