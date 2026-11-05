@@ -102,15 +102,10 @@
     doc.metrics = doc.metrics.filter(m => !SEEDED_METRICS.test(m.id) || m.enabled || hasData(m.id));
   }
 
-  // Waist used to default to cm. Convert the recorded values too, so 84 cm doesn't become "84 in".
-  function waistToInches(doc) {
+  // Waist used to default to a "cm" label, but values were entered in inches. Only the label changes.
+  function waistLabelToInches(doc) {
     const m = doc.metrics.find(x => x.builtin === 'waist');
-    if (!m || String(m.unit).trim().toLowerCase() !== 'cm') return;
-    m.unit = 'in';
-    Object.values(doc.measurements).forEach(day => {
-      const v = day[m.id] === '' || day[m.id] == null ? NaN : Number(day[m.id]);
-      if (Number.isFinite(v)) day[m.id] = Math.round(v / 2.54 * 100) / 100;
-    });
+    if (m && String(m.unit).trim().toLowerCase() === 'cm') m.unit = 'in';
   }
 
   function migrate(doc) {
@@ -125,7 +120,7 @@
     doc.categories = doc.categories || [];
     doc.exercises = doc.exercises || [];
     if ((doc.schema || 1) < 2) stripSeeded(doc);
-    if ((doc.schema || 1) < 3) waistToInches(doc);
+    if ((doc.schema || 1) < 3) waistLabelToInches(doc);
     doc.schema = 3;
     return doc;
   }
