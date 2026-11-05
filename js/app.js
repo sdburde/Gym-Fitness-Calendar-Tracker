@@ -759,7 +759,7 @@
     return sheetHead(s.id ? 'Edit metric' : 'Add metric') + '<div class="sheet-scroll"><form data-form="metric" id="metric-form">' +
       '<label class="field"><span>Name</span><input class="input" name="name" required maxlength="30" value="' + esc(m.name) + '" placeholder="e.g. Chest size"></label>' +
       (m.builtin ? '<p class="muted small">Rename freely — e.g. Waist → Belly or Abdomen.</p>' : '') +
-      '<div class="inline-2"><label class="field"><span>Unit</span><input class="input" name="unit" maxlength="10" value="' + esc(m.unit) + '" placeholder="cm"></label>' +
+      '<div class="inline-2"><label class="field"><span>Unit</span><input class="input" name="unit" maxlength="10" value="' + esc(m.unit) + '" placeholder="in"></label>' +
       '<label class="field"><span>Type</span><select class="input" name="type">' + Object.keys(METRIC_TYPES).map(t => '<option value="' + t + '"' + (t === m.type ? ' selected' : '') + '>' + METRIC_TYPES[t] + '</option>').join('') + '</select></label></div>' +
       '<div class="field"><span>Track</span><div class="seg"><label class="seg-radio"><input type="radio" name="frequency" value="daily"' + (m.frequency !== 'weekly' ? ' checked' : '') + '><span>Daily</span></label>' +
       '<label class="seg-radio"><input type="radio" name="frequency" value="weekly"' + (m.frequency === 'weekly' ? ' checked' : '') + '><span>Weekly</span></label></div></div>' +

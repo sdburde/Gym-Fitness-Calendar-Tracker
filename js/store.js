@@ -63,14 +63,14 @@
   function defaultMetrics() {
     return [
       { id: 'm_weight', name: 'Weight', unit: 'kg', type: 'decimal', frequency: 'daily', enabled: true, builtin: 'weight' },
-      { id: 'm_waist', name: 'Waist', unit: 'cm', type: 'decimal', frequency: 'weekly', enabled: true, builtin: 'waist' },
+      { id: 'm_waist', name: 'Waist', unit: 'in', type: 'decimal', frequency: 'weekly', enabled: true, builtin: 'waist' },
     ];
   }
 
   // New profiles start blank: no built-in exercises or plan. The user types their own.
   function newUserDoc(profile) {
     return {
-      schema: 2,
+      schema: 3,
       profile,
       settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
       categories: [],
@@ -100,7 +100,17 @@
     doc.categories = doc.categories.filter(c => doc.exercises.some(e => e.categoryId === c.id));
     const hasData = id => Object.values(doc.measurements).some(m => m[id] != null);
     doc.metrics = doc.metrics.filter(m => !SEEDED_METRICS.test(m.id) || m.enabled || hasData(m.id));
-    doc.schema = 2;
+  }
+
+  // Waist used to default to cm. Convert the recorded values too, so 84 cm doesn't become "84 in".
+  function waistToInches(doc) {
+    const m = doc.metrics.find(x => x.builtin === 'waist');
+    if (!m || String(m.unit).trim().toLowerCase() !== 'cm') return;
+    m.unit = 'in';
+    Object.values(doc.measurements).forEach(day => {
+      const v = day[m.id] === '' || day[m.id] == null ? NaN : Number(day[m.id]);
+      if (Number.isFinite(v)) day[m.id] = Math.round(v / 2.54 * 100) / 100;
+    });
   }
 
   function migrate(doc) {
@@ -114,6 +124,9 @@
     if (!doc.profile.startDate) doc.profile.startDate = D.str(new Date(doc.profile.createdAt || Date.now()));
     doc.categories = doc.categories || [];
     doc.exercises = doc.exercises || [];
+    if ((doc.schema || 1) < 2) stripSeeded(doc);
+    if ((doc.schema || 1) < 3) waistToInches(doc);
+    doc.schema = 3;
     return doc;
   }
 
@@ -162,8 +175,9 @@
       if (!cache[id]) {
         const doc = read(userKey(id));
         if (doc) {
+          const schema = doc.schema;
           cache[id] = migrate(doc);
-          if ((doc.schema || 1) < 2) { stripSeeded(doc); write(userKey(id), doc); }
+          if (doc.schema !== schema) write(userKey(id), doc);
           const m = this.meta(id);
           if (m && m.pinHash && !doc.profile.pinHash) doc.profile.pinHash = m.pinHash;
         }
