@@ -108,28 +108,6 @@
     if (m && String(m.unit).trim().toLowerCase() === 'cm') m.unit = 'in';
   }
 
-  // TEMPORARY: undoes the mistaken cm -> inch conversion (value / 2.54, rounded to 2 decimals) on schema 3 profiles.
-  // Values of 24 or more were not converted (real inches), so they are left alone.
-  // The new change time makes sync push the restored values to the data repo.
-  function undoWaistConversion(doc) {
-    const m = doc.metrics.find(x => x.builtin === 'waist');
-    if (!m) return;
-    const round = (n, dp) => Math.round(n * 10 ** dp) / 10 ** dp;
-    const original = v => {
-      for (let dp = 0; dp < 2; dp++) {
-        const c = round(v * 2.54, dp);
-        if (round(c / 2.54, 2) === v) return c;   // simplest value that converts to exactly v
-      }
-      return round(v * 2.54, 2);
-    };
-    let restored = false;
-    Object.values(doc.measurements).forEach(day => {
-      const v = day[m.id] === '' || day[m.id] == null ? NaN : Number(day[m.id]);
-      if (v > 0 && v < 24) { day[m.id] = original(v); restored = true; }
-    });
-    if (restored) doc.updatedAt = Date.now();
-  }
-
   function migrate(doc) {
     doc.settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), doc.settings || {});
     doc.settings.notify = Object.assign({}, DEFAULT_SETTINGS.notify, doc.settings.notify || {});
@@ -143,7 +121,6 @@
     doc.exercises = doc.exercises || [];
     if ((doc.schema || 1) < 2) stripSeeded(doc);
     if ((doc.schema || 1) < 3) waistLabelToInches(doc);
-    else if (doc.schema === 3) undoWaistConversion(doc);
     doc.schema = 4;
     return doc;
   }
