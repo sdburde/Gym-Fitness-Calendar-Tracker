@@ -664,8 +664,6 @@
 
     html += '<div class="sheet-scroll"><div class="status-banner s-' + st.state + '"><span class="big-dot">' +
       (st.state === 'done' ? ic('check') : st.state === 'missed' ? ic('x') : '') + '</span><div><b>' + bannerLabel + '</b><small>' + sub + '</small></div></div>' +
-      (locked ? '<div class="lock-note">' + ic('lock') + '<div><b>Read only — this day is over.</b><small>Past days are locked to keep your history honest.</small></div>' +
-        '<button class="btn btn-soft btn-sm" data-action="ask-unlock" data-date="' + ds + '">Unlock</button></div>' : '') +
       (ds === unlockedDay && ds < today ? '<div class="lock-note open">' + ic('edit') + '<div><b>Editing a past day</b><small>It locks again when you close this window.</small></div></div>' : '');
 
     const section = (title, ids, action) => '<div class="sec-head"><h3>' + title + '</h3>' + action + '</div>' +
@@ -685,7 +683,9 @@
       : '<p class="muted small pad">No metrics enabled. Turn some on in Profile.</p>';
 
     html += '<div class="sec-head"><h3>📝 Notes</h3></div><textarea class="input" rows="3" data-input="notes" data-date="' + ds + '" placeholder="How did it feel?"' + (locked ? ' disabled' : '') + '>' + esc(day.notes || '') + '</textarea></div>';
-    html += '<div class="sheet-foot">' + (locked ? '<button class="btn btn-primary btn-lg btn-block" data-action="close-sheet">Close</button>'
+    // Locked past day: everything above is shown read-only; editing starts from the footer (then the type-your-name check).
+    html += '<div class="sheet-foot' + (locked ? ' row' : '') + '">' + (locked ? '<button class="btn btn-ghost btn-lg grow" data-action="close-sheet">Close</button>' +
+        '<button class="btn btn-primary btn-lg grow" data-action="ask-unlock" data-date="' + ds + '">' + ic('edit') + 'Edit this day</button>'
       : '<button class="btn btn-primary btn-lg btn-block" data-action="close-sheet" data-toast="Saved ✓">Save</button>') + '</div>';
     return html;
   };
@@ -736,7 +736,7 @@
       '<small>Past workouts can\'t be changed. To edit it anyway, type your profile name <b>' + name + '</b> in all three boxes.</small></div></div>' +
       '<form data-form="daylock" id="daylock-form">' + [1, 2, 3].map(i =>
         '<label class="field"><span>Type “' + name + '” (' + i + ' of 3)</span><input class="input" name="n' + i + '" data-nopaste autocomplete="off" autocapitalize="off" spellcheck="false" required' + (i === 1 ? ' autofocus' : '') + '></label>').join('') +
-      '</form></div><div class="sheet-foot row"><button class="btn btn-ghost grow" data-action="view-day" data-date="' + s.date + '">View only</button>' +
+      '</form></div><div class="sheet-foot row"><button class="btn btn-ghost grow" data-action="view-day" data-date="' + s.date + '">Back</button>' +
       '<button class="btn btn-primary grow" type="submit" form="daylock-form">' + ic('lock') + 'Unlock & edit</button></div>';
   };
 
