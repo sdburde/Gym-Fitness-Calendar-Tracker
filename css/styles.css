@@ -1165,3 +1165,36 @@ h2 { font-weight: 700; letter-spacing: 0; }
 .dnote { border-left: 2px solid var(--border-strong); padding-left: 5px; font-style: normal; color: var(--text-2); }
 .bx-note { border-left: 3px solid var(--border-strong); padding-left: 8px; font-style: normal; }
 .howto a { color: var(--primary); font-weight: 700; overflow-wrap: anywhere; }
+
+/* daily checks: workout / protein / multivitamin marks in calendar cells, check rows in day screen and list boxes */
+.marks { display: flex; gap: 2px; margin: 2px 0 3px; }
+.mk {
+  flex: 1; min-width: 0; display: grid; place-items: center; height: 18px; border-radius: 2px;
+  font-size: 11px; line-height: 1; background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--border);
+}
+.mk.s-done { background: var(--green); box-shadow: none; }
+.mk.s-partial, .mk.s-progress { background: var(--amber); box-shadow: none; }
+.mk.s-missed { background: var(--red); box-shadow: none; }
+.mk.s-todo { box-shadow: inset 0 0 0 1.5px var(--primary); }
+.mk.s-rest, .mk.s-none { opacity: .45; }
+@media (max-width: 600px) { .mk { height: 14px; font-size: 9px; } .marks { gap: 1px; } }
+
+.ck-row { display: flex; align-items: center; }
+.ex-item.ck-row { min-height: 56px; }
+.ck-name { flex: 1; min-width: 0; display: grid; padding: 8px; }
+.ex-item .ck-name b { font-size: 16px; }
+.ck-name small { font-size: 12px; color: var(--muted); }
+.ck-row.s-done .ck-name small { color: var(--green-ink); font-weight: 700; }
+.ck-row.s-partial .ck-name small { color: var(--amber-ink); font-weight: 700; }
+.ck-row.s-missed .ck-name small { color: var(--red-ink); font-weight: 700; }
+.ck-row.s-partial { background: var(--amber-bg); border-color: var(--amber); }
+.ck-row.s-missed { border-color: color-mix(in srgb, var(--red) 45%, transparent); }
+.ck-half {
+  flex: none; width: 36px; height: 32px; margin-right: 8px; border-radius: 4px; font-weight: 800; font-size: 15px;
+  border: 1px solid var(--input-border); background: var(--surface); color: var(--text);
+}
+.ck-half[aria-pressed="true"] { background: var(--amber); border-color: var(--amber); color: #1b1b1b; }
+.ck-half:disabled { opacity: .4; }
+.bx-row .ck-half { width: 30px; height: 28px; margin-right: 2px; }
+.bx-row .ck-name { padding: 6px 4px; }
+.bx-checks { margin-top: 6px; }

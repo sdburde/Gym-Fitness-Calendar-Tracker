@@ -294,6 +294,32 @@
     return '<span class="day-extra">' + rows + (note ? '<span class="dnote">' + esc(note.trim()) + '</span>' : '') + '</span>';
   }
 
+  // One coloured mark each for workout, protein and multivitamin, in that order.
+  const MARK_WORD = { done: 'done', partial: 'partial', missed: 'missed', progress: 'in progress', todo: 'not done yet' };
+  function dayMarks(u, ds, today, st) {
+    if (ds > today) return '';
+    const marks = [{ icon: '🏋️', name: 'Workout', state: st.state }]
+      .concat(L.CHECKS.map(c => ({ icon: c.icon, name: c.name, state: L.checkState(u, ds, c.key, today) })));
+    if (marks.every(m => !MARK_WORD[m.state])) return '';
+    return '<span class="marks">' + marks.map(m => {
+      const word = MARK_WORD[m.state] || 'not tracked';
+      return '<span class="mk s-' + m.state + '" title="' + m.name + ': ' + word + '">' + m.icon + '</span>';
+    }).join('') + '</span>';
+  }
+
+  // Tick (done) plus a "½" button (partial) for protein / multivitamin.
+  function checkRow(u, ds, c, cls, future, locked) {
+    const state = L.checkState(u, ds, c.key);
+    const off = future || locked ? ' disabled' : '';
+    const word = state === 'done' ? 'Done' : state === 'partial' ? 'Partial' : state === 'missed' ? 'Missed' : '';
+    return '<div class="' + cls + ' ck-row s-' + state + (state === 'done' ? ' is-done' : '') + '">' +
+      '<button class="' + (cls === 'bx-row' ? 'bx-check' : 'check-btn') + '" data-action="toggle-check" data-date="' + ds + '" data-check="' + c.key + '"' + off +
+      ' aria-pressed="' + (state === 'done') + '" aria-label="Mark ' + c.name + ' done"><span class="check">' + ic('check') + '</span></button>' +
+      '<span class="ck-name"><b>' + c.icon + ' ' + c.name + '</b>' + (word ? '<small>' + word + '</small>' : '') + '</span>' +
+      '<button class="ck-half" data-action="toggle-check" data-partial="1" data-date="' + ds + '" data-check="' + c.key + '"' + off +
+      ' aria-pressed="' + (state === 'partial') + '" aria-label="Mark ' + c.name + ' partial">½</button></div>';
+  }
+
   function dayCell(u, ds, today) {
     const st = L.dayStatus(u, ds, today);
     const fi = groupFilter(u, ds);
@@ -313,6 +339,7 @@
       '<span class="day-top">' + (fi.val ? '<span class="dv">' + fi.val + '</span>'
         : items.length && (st.state === 'missed' || st.state === 'partial') ? '<span class="miss-flag ' + st.state + '" title="' + STATUS[st.state].label + '">' + (st.state === 'missed' ? '✕ Missed' : '◐ Partial') + '</span>'
         : '<span class="dot"></span>') + '<span class="dn">' + D.parse(ds).getDate() + '</span></span>' +
+      dayMarks(u, ds, today, st) +
       '<span class="day-list">' + (items.length ? list : st.state === 'missed' ? '<span class="di missed-day">Missed</span>' : '') + '</span>' +
       dayExtras(u, ds) + '</button>';
   }
@@ -340,6 +367,7 @@
       '<div class="daybox-head"><button class="daybox-date" data-action="open-day" data-date="' + ds + '"><b>' + d.getDate() + '</b><span><small>' + weekday(ds) + (ds === today ? ' · Today' : '') + '</small><em>' + MONTHS[d.getMonth()] + '</em></span></button>' +
       (items.length || st.state === 'missed' ? pill(st.state, st.total) : '') + '</div>' +
       (rows ? '<div class="bx-list">' + rows + '</div>' : st.state === 'missed' ? '<p class="bx-missed">No workout logged</p>' : '') +
+      (future ? '' : '<div class="bx-list bx-checks">' + L.CHECKS.map(c => checkRow(u, ds, c, 'bx-row', future, locked)).join('') + '</div>') +
       (ms ? '<p class="bx-meas">' + ms + '</p>' : '') +
       ((u.days[ds] || {}).notes ? '<p class="bx-note">' + esc(u.days[ds].notes.trim()) + '</p>' : '') +
       (locked ? '<p class="bx-locked">' + ic('lock') + 'Locked</p>' : quickAdd(u, 'day:' + ds)) + '</section>';
@@ -631,6 +659,9 @@
     if (!locked) html += '<div class="sheet-qa">' + quickAdd(u, 'day:' + ds, true) + '</div>';
     if (future) html += '<p class="muted small pad">You can tick exercises off once the day arrives.</p>';
 
+    html += '<div class="sec-head"><h3>💊 Daily checks</h3><small class="muted">Tick = done · ½ = partial</small></div>';
+    html += L.CHECKS.map(c => checkRow(u, ds, c, 'ex-item', future, locked)).join('');
+
     html += '<div class="sec-head" id="measure-sec"><h3>📏 Body measurements</h3><small class="muted">Doesn\'t affect workout status</small></div>';
     html += metrics.length ? '<div class="measure-grid">' + metrics.map(m => metricInput(u, m, meas[m.id], ds, locked)).join('') + '</div>'
       : '<p class="muted small pad">No metrics enabled. Turn some on in Profile.</p>';
@@ -859,6 +890,15 @@
     refresh();
   }
 
+  function toggleCheck(ds, key, value) {
+    if (!guard(ds)) return;
+    const day = L.ensureDay(Store.active(), ds);
+    const checks = day.checks || (day.checks = {});
+    if (checks[key] === value) delete checks[key]; else checks[key] = value;
+    if (!Object.keys(checks).length) delete day.checks;
+    refresh();
+  }
+
   function completeAll(ds) {
     if (!guard(ds)) return;
     const u = Store.active();
@@ -910,6 +950,7 @@
     'month-today': () => { ui.month = D.today().slice(0, 7); render(); },
     'open-day': el => openDay(el.dataset.date || D.today(), el.dataset.focus),
     'toggle-ex': el => toggleEx(el.dataset.date, el.dataset.ex),
+    'toggle-check': el => toggleCheck(el.dataset.date, el.dataset.check, el.dataset.partial ? 'partial' : 'done'),
     'complete-all': el => completeAll(el.dataset.date),
     'expand-ex': el => { ui.sheet.open = ui.sheet.open === el.dataset.ex ? null : el.dataset.ex; renderSheet(); },
     'day-shift': el => { ui.sheet.date = D.add(ui.sheet.date, Number(el.dataset.n)); ui.sheet.open = null; ui.selected = ui.sheet.date; ui.month = ui.selected.slice(0, 7); renderSheet(); },

@@ -58,6 +58,22 @@
     return { ...base, state: 'missed' };
   }
 
+  /* Daily checks (protein, multivitamin): tracked on their own, never change the workout status above.
+   * Stored as days[ds].checks[key] = 'done' | 'partial'. Days before the feature existed are never "missed". */
+  const CHECKS = [
+    { key: 'protein', name: 'Protein', icon: '🥤' },
+    { key: 'multivitamin', name: 'Multivitamin', icon: '💊' },
+  ];
+  const CHECKS_FROM = '2026-11-20';
+
+  function checkState(u, ds, key, today = D.today()) {
+    const v = ((u.days[ds] || {}).checks || {})[key];
+    if (v === 'done' || v === 'partial') return v;
+    if (ds > today) return 'future';
+    if (ds < trackStart(u) || ds < CHECKS_FROM) return 'none';
+    return ds === today ? 'todo' : 'missed';
+  }
+
   function earliest(u) {
     let s = trackStart(u);
     for (const k in u.days) if (k < s && dayStatus(u, k).state !== 'none') s = k;
@@ -190,6 +206,6 @@
   window.Logic = {
     num, trackStart, ex, cat, groupOf, metric, builtin, plannedFor, dayItems, dayStatus, streaks,
     metricSeries, numericSeries, latestBefore, metricChange, cardioSessions, monthStats, heat,
-    pace, valueSummary, ensureDay, ownPlan,
+    pace, valueSummary, ensureDay, ownPlan, CHECKS, checkState,
   };
 })();
