@@ -434,9 +434,10 @@
       '</div><div class="consistency"><div class="row"><span>Workout consistency</span><b>' + (ms.pct == null ? '—' : ms.pct + '%') + '</b></div>' +
       '<div class="meter big"><i style="width:' + (ms.pct || 0) + '%"></i></div></div></section>';
 
+    const bodyCards = [wm, xm].filter(m => m && m.enabled).map(m => metricCard(u, m));
+    if (bodyCards.length) html += '<div class="span-2 pair' + (bodyCards.length === 1 ? ' single' : '') + '">' + bodyCards.join('') + '</div>';
     html += streakCard(u, sk);
-    if (wm && wm.enabled) html += metricCard(u, wm);
-    if (xm && xm.enabled) html += metricCard(u, xm);
+    html += checksCard(u);
     html += cardioCard(u);
     if (others.length) {
       const sel = '<select class="input input-sm" data-input="other-metric" aria-label="Metric">' +
@@ -453,6 +454,23 @@
       '<div class="streak-box"><span>🏆</span><b>' + sk.best + '</b><small>Longest streak</small></div></div>' +
       '<p class="mini-title">Last 12 weeks</p><div class="heat">' + cells + '</div>' +
       '<div class="legend"><span><i class="lg s-done"></i>Done</span><span><i class="lg s-partial"></i>Partial</span><span><i class="lg s-missed"></i>Missed</span><span><i class="lg s-rest"></i>Rest</span></div></section>';
+  }
+
+  // 12-week box grids for protein and multivitamin, side by side, plus this month's counts.
+  const CHECK_LABEL = { done: 'Done', partial: 'Partial', missed: 'Missed', todo: 'Not done yet', none: 'Not tracked' };
+  function checksCard(u) {
+    const today = D.today();
+    const blocks = L.CHECKS.map(c => {
+      const cells = L.checkHeat(u, c.key, 12);
+      const month = cells.filter(x => x.ds.slice(0, 7) === today.slice(0, 7));
+      const n = s => month.filter(x => x.state === s).length;
+      return '<div class="ck-heat"><p class="mini-title">' + c.icon + ' ' + c.name + '</p>' +
+        '<div class="heat">' + cells.map(x => '<i class="s-' + x.state + '" title="' + shortDate(x.ds) + ' · ' + (CHECK_LABEL[x.state] || '') + '"></i>').join('') + '</div>' +
+        '<p class="ck-count"><span class="ok">✓ ' + n('done') + '</span><span class="half">½ ' + n('partial') + '</span><span class="no">✕ ' + n('missed') + '</span><small>this month</small></p></div>';
+    }).join('');
+    return '<section class="card"><div class="card-head"><h2>💊 Protein & Multivitamin</h2><span class="muted small">last 12 weeks</span></div>' +
+      '<div class="ck-heats">' + blocks + '</div>' +
+      '<div class="legend"><span><i class="lg s-done"></i>Done</span><span><i class="lg s-partial"></i>Partial</span><span><i class="lg s-missed"></i>Missed</span></div></section>';
   }
 
   let chartSeq = 0;
@@ -870,10 +888,10 @@
   function openDay(ds, focus) {
     ui.selected = ds;
     ui.month = ds.slice(0, 7);
-    if (!canEdit(ds)) { openSheet({ type: 'daylock', date: ds }); return; }
+    // Past days open read-only; the name check is only asked when tapping Unlock to edit.
     openSheet({ type: 'day', date: ds, open: null, focus });
     const u = Store.active();
-    if (!focus && !L.dayItems(u, ds).length && window.matchMedia('(hover: hover)').matches) setTimeout(() => focusQuickAdd('day:' + ds), 340);
+    if (canEdit(ds) && !focus && !L.dayItems(u, ds).length && window.matchMedia('(hover: hover)').matches) setTimeout(() => focusQuickAdd('day:' + ds), 340);
   }
 
   function refresh() { save(); if (ui.sheet) renderSheet(); else render(); }

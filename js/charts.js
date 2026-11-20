@@ -57,7 +57,7 @@
   function line(el, pts, o = {}) {
     const H = o.height || 210;
     if (!pts.length) return empty(el, o.empty, H);
-    const W = Math.max(el.clientWidth, 240);
+    const W = Math.max(el.clientWidth, 140);
     const P = { l: 44, r: 14, t: 14, b: 28 };
     const ys = pts.map(p => p.y);
     let lo = Math.min(...ys), hi = Math.max(...ys);
@@ -72,7 +72,7 @@
     let s = '<svg width="' + W + '" height="' + H + '" role="img" aria-label="' + (o.label || 'Line chart') + '">';
     s += yAxis(lo, hi, step, W, H, P, sy, o.yfmt);
 
-    const n = Math.min(pts.length, W < 420 ? 3 : 5);
+    const n = Math.min(pts.length, W < 240 ? 2 : W < 420 ? 3 : 5);   // ~60px per date label
     const idx = [...new Set(n === 1 ? [0] : Array.from({ length: n }, (_, i) => Math.round(i * (pts.length - 1) / (n - 1))))];
     idx.forEach((i, k) => {
       const anchor = idx.length === 1 ? 'middle' : k === 0 ? 'start' : k === idx.length - 1 ? 'end' : 'middle';

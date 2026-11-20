@@ -166,6 +166,18 @@
     return out;
   }
 
+  // Same 12-week grid as heat(), for one daily check (protein / multivitamin).
+  function checkHeat(u, key, weeks = 12) {
+    const today = D.today();
+    const start = D.add(D.weekStart(today, u.settings.weekStart), -7 * (weeks - 1));
+    const out = [];
+    for (let i = 0; i < weeks * 7; i++) {
+      const ds = D.add(start, i);
+      out.push({ ds, state: ds > today ? 'blank' : checkState(u, ds, key, today) });
+    }
+    return out;
+  }
+
   const pace = minPerKm => {
     if (!minPerKm || !isFinite(minPerKm)) return '';
     let m = Math.floor(minPerKm), s = Math.round((minPerKm - m) * 60);
@@ -206,6 +218,6 @@
   window.Logic = {
     num, trackStart, ex, cat, groupOf, metric, builtin, plannedFor, dayItems, dayStatus, streaks,
     metricSeries, numericSeries, latestBefore, metricChange, cardioSessions, monthStats, heat,
-    pace, valueSummary, ensureDay, ownPlan, CHECKS, checkState,
+    pace, valueSummary, ensureDay, ownPlan, CHECKS, checkState, checkHeat,
   };
 })();
